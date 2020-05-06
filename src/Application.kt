@@ -19,6 +19,7 @@ import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
+import kotlinx.coroutines.launch
 import kotlinx.css.*
 import kotlinx.html.*
 import java.io.FileInputStream
@@ -42,9 +43,21 @@ fun Application.module(testing: Boolean = false) {
 
     routing {
         post("/token") {
-            val token = call.receive<String>()
-            println("Found token: $token")
+            val body = call.receive<HashMap<String, String>>()
+
+            println("${body.get("token")}")
+            println("${body.get("username")}")
+
+            // TODO save it and throw 400 if something is missing
+
             call.respondText("{}", contentType = ContentType.Application.Json)
+//            FireDatabase.retrieveUserByToken("token") {
+//                launch {
+//                    println("eftasa")
+//                    println("eftasa2: $it")
+//                    call.respondText(it?.toString() ?: "{}", contentType = ContentType.Application.Json)
+//                }
+//            }
         }
 
         get("/test") {
