@@ -1,5 +1,7 @@
 package nl.giorgos
 
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.Message
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
@@ -62,6 +64,9 @@ fun Application.module(testing: Boolean = false) {
                 call.respondText(text = "{}", contentType = ContentType.Application.Json, status = HttpStatusCode.BadRequest)
             } else {
                 FireDatabase.updateSdp(username, sdp)
+
+                PushNotificationSender.send("cJxCcx1STQupjrSjyMPJTq:APA91bH092kLMOSREtbkyeRMrJlEB3KsNVgGP_nNCywF8hexHfJgw7O0myGn0ksfubByCkVmw9N2u2hUSDt7lSVT4U6M0N-X1XPyHwIbKaziLYCVEg4Ao7KlrWvze-Yfa2AV8HVk5HBd", "sdp")
+
                 call.respondText("{}", contentType = ContentType.Application.Json)
             }
         }
