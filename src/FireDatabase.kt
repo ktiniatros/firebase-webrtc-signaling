@@ -36,7 +36,8 @@ class FireDatabase {
 
             val newRecords = mapOf(me.username to me.description)
 
-            table.setValue(newRecords) { error, ref ->
+            table.updateChildren(newRecords) { error, _ ->
+                //TODO monitor
                 error?.toException()?.printStackTrace()
             }
         }

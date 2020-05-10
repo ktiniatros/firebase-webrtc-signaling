@@ -1,9 +1,5 @@
 package nl.giorgos
 
-import com.google.auth.oauth2.GoogleCredentials
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
-import com.google.firebase.database.FirebaseDatabase
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
@@ -14,15 +10,14 @@ import io.ktor.features.ContentNegotiation
 import io.ktor.gson.gson
 import io.ktor.html.respondHtml
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
-import kotlinx.coroutines.launch
 import kotlinx.css.*
 import kotlinx.html.*
-import java.io.FileInputStream
 import java.text.DateFormat
 
 
@@ -45,19 +40,16 @@ fun Application.module(testing: Boolean = false) {
         post("/token") {
             val body = call.receive<HashMap<String, String>>()
 
-            println("${body.get("token")}")
-            println("${body.get("username")}")
+            val username = body.get("username") ?: ""
+            val token = body.get("token") ?: ""
 
-            // TODO save it and throw 400 if something is missing
-
-            call.respondText("{}", contentType = ContentType.Application.Json)
-//            FireDatabase.retrieveUserByToken("token") {
-//                launch {
-//                    println("eftasa")
-//                    println("eftasa2: $it")
-//                    call.respondText(it?.toString() ?: "{}", contentType = ContentType.Application.Json)
-//                }
-//            }
+            if (username.isEmpty() or token.isEmpty()) {
+                call.respondText(text = "{}", contentType = ContentType.Application.Json, status = HttpStatusCode.BadRequest)
+            } else {
+                val user = User(username, UserDescription(token, ""))
+                FireDatabase.addUser(user)
+                call.respondText("{}", contentType = ContentType.Application.Json)
+            }
         }
 
         get("/test") {
