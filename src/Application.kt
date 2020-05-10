@@ -52,6 +52,20 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
+        post("/sdp") {
+            val body = call.receive<HashMap<String, String>>()
+
+            val username = body.get("username") ?: ""
+            val sdp = body.get("sdp") ?: ""
+
+            if (username.isEmpty() or sdp.isEmpty()) {
+                call.respondText(text = "{}", contentType = ContentType.Application.Json, status = HttpStatusCode.BadRequest)
+            } else {
+                FireDatabase.updateSdp(username, sdp)
+                call.respondText("{}", contentType = ContentType.Application.Json)
+            }
+        }
+
         get("/test") {
             call.respondText("{\"key\":\"value\"d}", contentType = ContentType.Application.Json)
         }

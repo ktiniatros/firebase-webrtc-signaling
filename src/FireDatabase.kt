@@ -3,10 +3,7 @@ package nl.giorgos
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import java.io.FileInputStream
 
 class FireDatabase {
@@ -37,6 +34,17 @@ class FireDatabase {
             val newRecords = mapOf(me.username to me.description)
 
             table.updateChildren(newRecords) { error, _ ->
+                //TODO monitor
+                error?.toException()?.printStackTrace()
+            }
+        }
+
+        fun updateSdp(username: String, sdp: String) {
+            val table = database.getReference("webrtc/users/$username")
+
+            val newRecord = mapOf("sdp" to sdp, "lastUpdatedAt" to ServerValue.TIMESTAMP)
+
+            table.updateChildren(newRecord) { error, _ ->
                 //TODO monitor
                 error?.toException()?.printStackTrace()
             }
