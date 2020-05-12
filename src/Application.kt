@@ -2,6 +2,7 @@ package nl.giorgos
 
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.Message
+import com.google.gson.JsonObject
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
@@ -18,6 +19,8 @@ import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.css.*
 import kotlinx.html.*
 import java.text.DateFormat
@@ -39,6 +42,7 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
+        //TODO limit acquiring existing username to last 24 hours
         post("/token") {
             val body = call.receive<HashMap<String, String>>()
 
@@ -65,10 +69,33 @@ fun Application.module(testing: Boolean = false) {
             } else {
                 FireDatabase.updateSdp(username, sdp)
 
-                PushNotificationSender.send("cJxCcx1STQupjrSjyMPJTq:APA91bH092kLMOSREtbkyeRMrJlEB3KsNVgGP_nNCywF8hexHfJgw7O0myGn0ksfubByCkVmw9N2u2hUSDt7lSVT4U6M0N-X1XPyHwIbKaziLYCVEg4Ao7KlrWvze-Yfa2AV8HVk5HBd", "sdp")
-
                 call.respondText("{}", contentType = ContentType.Application.Json)
             }
+        }
+
+        get("/users") {
+
+            //TODO get from db all users with valid fcm token and sdp
+
+            call.respondText("{}", contentType = ContentType.Application.Json)
+        }
+
+        post("/invite") {
+            val body = call.receive<HashMap<String, String>>()
+            val usernameFrom = body.get("from") ?: ""
+            val usernameTo = body.get("to") ?: ""
+            val sdpFrom = body.get("sdp") ?: ""
+
+            if (usernameFrom.isEmpty() or usernameTo.isEmpty()) {
+                call.respondText(text = "{}", contentType = ContentType.Application.Json, status = HttpStatusCode.BadRequest)
+            }
+
+            FireDatabase.getTokenByUsername(usernameTo) { tokenTo ->
+                if (tokenTo != null) {
+                    PushNotificationSender.send(tokenTo, sdpFrom, usernameFrom)
+                }
+            }
+            call.respondText("{}", contentType = ContentType.Application.Json)
         }
 
         get("/test") {

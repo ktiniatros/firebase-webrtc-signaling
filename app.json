@@ -1,0 +1,6 @@
+{
+  "name": "Firebase WebRTC Signaling",
+  "description": "Updating peers session description via Firebase Cloud Messaging",
+  "image": "heroku/java",
+  "addons": []
+}

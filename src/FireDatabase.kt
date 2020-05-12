@@ -50,6 +50,34 @@ class FireDatabase {
             }
         }
 
+        fun getTokenByUsername(username: String, cb: (String?) -> Unit) {
+            val table = database.getReference("webrtc/users/$username")
+            table.addValueEventListener(object: ValueEventListener {
+                override fun onCancelled(error: DatabaseError?) {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot?) {
+                    val token = snapshot?.child("token")?.value as? String
+                    cb(token)
+                }
+            })
+        }
+
+        fun getSdpByUsername(username: String, cb: (String?) -> Unit) {
+            val table = database.getReference("webrtc/users/$username")
+            table.addValueEventListener(object: ValueEventListener {
+                override fun onCancelled(error: DatabaseError?) {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot?) {
+                    val sdp = snapshot?.child("sdp")?.value as? String
+                    cb(sdp)
+                }
+            })
+        }
+
         fun retrieveUserByToken(token: String, cb: (Any?) -> Unit) {
             val table = database.getReference("webrtc/users")
 

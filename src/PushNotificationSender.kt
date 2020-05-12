@@ -11,10 +11,11 @@ class PushNotificationSender(private val firebaseMessaging: FirebaseMessaging = 
     companion object {
         private val pushNotificationSender by lazy { PushNotificationSender() }
 
-        fun send(token: String, sdp: String) {
+        fun send(token: String, sdpFrom: String, from: String) {
             val message = Message.builder()
                     .setToken(token)
-                    .putData("sdp", sdp)
+                    .putData("sdp", sdpFrom)
+                    .putData("from", from)
                     .build()
 
             pushNotificationSender.firebaseMessaging.send(message)
